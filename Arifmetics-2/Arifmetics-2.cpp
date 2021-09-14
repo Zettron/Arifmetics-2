@@ -22,7 +22,7 @@ public:
                 
                 break;
             case 2:
-                Suma(bigA, bigB);
+                Suma();
                 break;
             case 3:
                 Difference();
@@ -53,77 +53,102 @@ public:
     void WriteNumbers()
     {
         int A, B;
-        cout << "--------------------------\n";
         cout << "Введіть число A: ";
         cin >> A;
         bigA = ConvertToBinary(A);
+
+        //вивести у 2 системі A
+        for (int i = 0; i < bigA.size(); i++)
+            cout << bigA[i];
+
         cout << "\nВведіть число B: ";
         cin >> B;
-        cout << "--------------------------\n";
         bigB = ConvertToBinary(B);
+
+        //вивести у 2 системі B
+        for (int i = 0; i < bigB.size(); i++)
+            cout << bigB[i];
+        cout << endl;
+        system("pause");
     }
 
     vector<int> ConvertToBinary(int num)
     {
-        vector<int> vec;
-        string str;
-        int i;
-        if (num == numeric_limits<int>::min())
+        vector<int>reverseVec, Vec;
+        reverseVec.reserve(2048);
+        Vec.reserve(2048);
+        int k, p = 0, number = num;
+        bool end = false;
+        while (end == false)
         {
-            str = "-1" + string(numeric_limits<int>::digits, '0');
-            for (i = 0; i < str.size(); i++)
-                vec.push_back((int)str[i] - 48);
-            return vec;
+            k = number / 2;
+            k *= 2;
+            if (k == 0)
+            {
+                p = 1;
+                end = true;
+            }
+            else if (k == number)
+                p = 0;
+
+            else if (k != number)
+                p = 1;
+            reverseVec.push_back(p);
+            number = k/2;         
         }
-        string buffer;
-        buffer.reserve(numeric_limits<int>::digits + 1); // +1 для минуса
+        for (int i = reverseVec.size(); i > 0; i--)
+            Vec.push_back(reverseVec.at(i - 1));
 
-        bool negative = (num < 0);
-        if (negative)
-            num = -num;
-        do
-        {
-            buffer += char('0' + num % 2);
-            num = num / 2;
-        } while (num > 0);
-
-        if (negative)
-            buffer += '-';
-
-        str = string(buffer.crbegin(), buffer.crend());
-
-        for (i = 0; i < str.size(); i++)
-            vec.push_back((int)str[i] - 48);
-        
-        //показати число в бінарному вигляді 
-        
-        //через рядок
-        //cout << string(buffer.crbegin(), buffer.crend());
-        
-        //через вектор
-        /*for (i = 0; i < bigA.size(); i++)
-            cout << bigA[i];*/
-        return vec;
+        return Vec;
     }
 
-    void Suma(vector<int>& A, vector<int>& B)
+    void Suma()
     {
-        int i, k=0, p;
-        int arrSize = max(A.size(), B.size());
-        vector<int> R(arrSize + 1);
-        p = 0;
+        int i, k = 0, p = 0;
+        int const arrSize = max(bigA.size(), bigB.size()) + 1;
+        vector<int> reverseR;
+        reverseR.reserve(2049);
+        
+        for (i = 0; i <arrSize; i++)
+        {
+            if (i = arrSize - 1)
+                k = p;
 
-        for (i = arrSize - 1; i >= 0; i--)
-        {
-            k = A[i] + B[i] + p;
-            R[i + 1] = k % 2;
-            p = k / 2;
+            if(i <= bigA.size() - 1 && i <= bigB.size() - 1)
+                k = bigA.at(bigA.size() - i - 1) + bigB.at(bigB.size() - i - 1) + p;
+            
+            else if(i > bigA.size() - 1)
+                k = bigB.at(bigB.size() - i - 1) + p;
+
+            else if(i > bigB.size() - 1)
+                k = bigA.at(bigA.size() - i - 1) + p;
+
+            if (k <= 1)
+                p = 0;
+
+            if (k > 1)
+            {
+                k -= 2;
+                p = 1;
+            }
+
+            reverseR.at(i) = k;
         }
-        if (p > 0) R[0] = p;
+        cout << "rverseR\n";
+        for (i = 0; i < reverseR.size(); i++)
+            cout << reverseR.at(i);
+
+        cout << endl << "bigR = ";
+        for (i = reverseR.size(); i > 0; i--)
         {
-            for (i = 0; i < R.size(); i++)
-                bigR[i] = R[i];
+            bigR.push_back(reverseR.at(i-1));
         }
+
+        for (i = 0; i < bigR.size(); i++)
+            cout << bigR.at(i);
+
+        cout << endl;
+        system("pause");
     }
 
     void Difference()
@@ -203,18 +228,28 @@ public:
     }
 };
 
+void set2048(Calculate c)
+{
+    c.bigA.reserve(2048);
+    c.bigB.reserve(2048);
+    c.bigR.reserve(2049);
+    c.bigQ.reserve(2049);
+    c.bigC.reserve(2049);
+}
+
 int main()
 {
     setlocale(LC_ALL, "ru");
-    int Key, j = 0;
-    bool i = false;
-    Calculate* c = new Calculate[1000];
-
+    int Key;
+    bool entered = false;
+    Calculate c;
+    set2048(c);
     while (1)
     {
+        system("cls");
         cout << "Виберіть дію\n";
         cout << "1) Переведення у формат великого числа\n";
-        if (i == true)
+        if (entered == true)
         {
             cout << "2) Додавання чисел\n";
             cout << "3) Віднімання чисел\n";
@@ -222,13 +257,17 @@ int main()
             cout << "5) Ділення чисел, знаходження остачі\n";
             cout << "6) Піднесення числа до багаторозрядного степеня\n";
             cout << "7) Конвертування числа в символьну строку та обернене перетворення\n";
+            cout << "0) Вихід\n";
         }
         cout << "->";
         cin >> Key;
-        c[j].Menu(Key);
+        if (Key = 0)
+            break;
 
-        i = true;
-        j++;
+        system("cls");
+        c.Menu(Key);
+
+        entered = true;
     }
     return 0;
 }
