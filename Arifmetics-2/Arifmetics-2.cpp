@@ -8,7 +8,7 @@ using namespace std;
 class Calculate
 {
 public:
-    vector<int> bigA, bigB, bigC, bigQ, bigR;
+    vector<int> bigA, bigB, bigS, bigQ, bigC, bigD;
     int i;
     void Menu(int key)
     {
@@ -19,7 +19,6 @@ public:
             {
             case 1:
                 WriteNumbers();
-                
                 break;
             case 2:
                 Suma();
@@ -58,16 +57,18 @@ public:
         bigA = ConvertToBinary(A);
 
         //вивести у 2 системі A
+        cout << "bigA = ";
         for (int i = 0; i < bigA.size(); i++)
-            cout << bigA[i];
+            cout << bigA.at(i);
 
         cout << "\nВведіть число B: ";
         cin >> B;
         bigB = ConvertToBinary(B);
 
         //вивести у 2 системі B
+        cout << "bigB = ";
         for (int i = 0; i < bigB.size(); i++)
-            cout << bigB[i];
+            cout << bigB.at(i);
         cout << endl;
         system("pause");
     }
@@ -104,24 +105,24 @@ public:
 
     void Suma()
     {
-        int i, k = 0, p = 0;
+        int i, k, p = 0;
         int const arrSize = max(bigA.size(), bigB.size()) + 1;
-        vector<int> reverseR;
-        reverseR.reserve(2049);
+        vector<int> reverseS(arrSize);
+        reverseS.reserve(2049);
         
-        for (i = 0; i <arrSize; i++)
+        for (i = 0; i < arrSize; i++)
         {
-            if (i = arrSize - 1)
+            if (i == arrSize - 1)
                 k = p;
 
-            if(i <= bigA.size() - 1 && i <= bigB.size() - 1)
-                k = bigA.at(bigA.size() - i - 1) + bigB.at(bigB.size() - i - 1) + p;
-            
-            else if(i > bigA.size() - 1)
-                k = bigB.at(bigB.size() - i - 1) + p;
+            if (i < bigA.size() && i < bigB.size())
+                k = bigA.at(bigA.size() - 1 - i) + bigB.at(bigB.size() - 1 - i) + p;
 
-            else if(i > bigB.size() - 1)
-                k = bigA.at(bigA.size() - i - 1) + p;
+            if (i >= bigA.size() && i < bigB.size())
+                k = bigB.at(bigB.size() - 1 - i) + p;
+
+            if (i >= bigB.size() && i < bigA.size())
+                k = bigA.at(bigA.size() - 1 - i) + p;
 
             if (k <= 1)
                 p = 0;
@@ -131,21 +132,28 @@ public:
                 k -= 2;
                 p = 1;
             }
-
-            reverseR.at(i) = k;
-        }
-        cout << "rverseR\n";
-        for (i = 0; i < reverseR.size(); i++)
-            cout << reverseR.at(i);
-
-        cout << endl << "bigR = ";
-        for (i = reverseR.size(); i > 0; i--)
-        {
-            bigR.push_back(reverseR.at(i-1));
+            reverseS.at(i) = k;
         }
 
-        for (i = 0; i < bigR.size(); i++)
-            cout << bigR.at(i);
+        if (reverseS.at(reverseS.size() - 1) == 0)
+            reverseS.pop_back();
+
+        for (i = reverseS.size(); i > 0; i--)
+            bigS.push_back(reverseS.at(i - 1));
+
+        cout << "bigA + bigB = bigS\n";
+        for (i = 0; i < bigA.size(); i++)
+            cout << bigA.at(i);
+
+        cout << " + ";
+
+        for (i = 0; i < bigB.size(); i++)
+            cout << bigB.at(i);
+
+        cout << " = ";
+
+        for (i = 0; i < bigS.size(); i++)
+            cout << bigS.at(i);
 
         cout << endl;
         system("pause");
@@ -232,15 +240,16 @@ void set2048(Calculate c)
 {
     c.bigA.reserve(2048);
     c.bigB.reserve(2048);
-    c.bigR.reserve(2049);
+    c.bigS.reserve(2049);
     c.bigQ.reserve(2049);
     c.bigC.reserve(2049);
+    c.bigD.reserve(2049);
 }
 
 int main()
 {
     setlocale(LC_ALL, "ru");
-    int Key;
+    int Key = 0;
     bool entered = false;
     Calculate c;
     set2048(c);
@@ -261,12 +270,11 @@ int main()
         }
         cout << "->";
         cin >> Key;
-        if (Key = 0)
+        if (Key == 0)
             break;
 
         system("cls");
         c.Menu(Key);
-
         entered = true;
     }
     return 0;
